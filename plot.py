@@ -149,8 +149,6 @@ def create_animation(position, angles, iteration_str, xylimits=np.array([2000, 2
     
     
 def create_progress_animation(results_folder, iterations_list):
-    
-    
 
     L = []
     for root, dirs, files in os.walk(results_folder):
