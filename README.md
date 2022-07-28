@@ -26,6 +26,8 @@ I think the ideal model would consist of multiple flies interacting in 3 dimensi
 
 However, when building models I try to start simple and build up. So first goal 1 fly, 1 behaviour (resting?), 2 dimensions and with a plot/animation.
 
+![Progress](progress.gif)
+
 
 ### References
 Fly png images are downloaded from [PNGWING](https://www.pngwing.com/).
