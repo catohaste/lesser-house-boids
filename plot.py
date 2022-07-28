@@ -1,12 +1,11 @@
 import os
 import numpy as np
+import cv2
+from moviepy.editor import *
+from natsort import natsorted
 from matplotlib import pyplot as plt
 from matplotlib import animation, image
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
-
-import cv2
-
-current_iteration_str = '01'
 
 def rotate_bound(image_h, angle):
     """ rotate png image (image_h) by given angle """
@@ -35,7 +34,7 @@ def rotate_bound(image_h, angle):
     return cv2.warpAffine(image_h, M, (nW, nH), borderValue=(255,255,255))
 
 
-def create_animation(position, angles, xylimits=np.array([2000, 2000]), view='both'):
+def create_animation(position, angles, iteration_str, xylimits=np.array([2000, 2000]), view='both'):
     """
         view: 'top', 'side' or 'both'(default)
         xylimits: size of single plot. default 2000*2000
@@ -114,7 +113,7 @@ def create_animation(position, angles, xylimits=np.array([2000, 2000]), view='bo
 
 
     """ progress text """
-    iteration_text = ax_top.text(0.06*xylimits[0], 0.91*xylimits[1], "Iteration " + current_iteration_str)
+    iteration_text = ax_top.text(0.06*xylimits[0], 0.91*xylimits[1], "Iteration " + iteration_str)
     
     """ axes directions text """
     xtext_loc = arrow_x_start + arrow_length*1.5
@@ -146,6 +145,24 @@ def create_animation(position, angles, xylimits=np.array([2000, 2000]), view='bo
 
     if not os.path.exists('results/'):
         os.mkdir('results/')
-    anim.save('results/lesser_house_boids_'+ current_iteration_str + '.mp4', writer="ffmpeg")
+    anim.save('results/lesser_house_boids_'+ iteration_str + '.mp4', writer="ffmpeg")
     
+    
+def create_progress_animation(results_folder, iterations_list):
+    
+    
+
+    L = []
+    for root, dirs, files in os.walk(results_folder):
+        files = natsorted(files)
+        for file in files:
+            if os.path.splitext(file)[1] == '.mp4':
+                filePath = os.path.join(root, file)
+                video = VideoFileClip(filePath)
+                L.append(video)
+
+    final_clip = concatenate_videoclips(L)
+    final_clip.to_videofile("progress.mp4", remove_temp=False)
+    
+    return
     
