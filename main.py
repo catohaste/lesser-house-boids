@@ -21,11 +21,11 @@ velocity = new_flock(boid_count, np.array([0, 0]), np.array([0, 0]))
 possible_angles = [0,90,180,270]
 angle = random.sample(possible_angles, boid_count)
 
-create_animation(position, angle, current_iteration_str, xylimits=limits, view='top')
+# create_animation(position, angle, current_iteration_str, xylimits=limits, view='top')
 
 
 current_iteration = int(current_iteration_str)
 iteration_list = [x+1 for x in range(current_iteration)]
 iteration_str_list = ["{:02d}".format(iteration_number) for iteration_number in iteration_list]
 
-# create_progress_animation('results/', iteration_str_list)
+create_progress_animation('results/', iteration_str_list)

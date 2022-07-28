@@ -162,7 +162,7 @@ def create_progress_animation(results_folder, iterations_list):
                 L.append(video)
 
     final_clip = concatenate_videoclips(L)
-    final_clip.to_videofile("progress.mp4", remove_temp=False)
+    final_clip.write_gif("progress.gif")
     
     return
     
