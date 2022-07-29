@@ -34,7 +34,7 @@ def rotate_bound(image_h, angle):
     return cv2.warpAffine(image_h, M, (nW, nH), borderValue=(255,255,255))
 
 
-def create_animation(position, velocity, angles, iteration_str, xylimits=np.array([2000, 2000]), view='both'):
+def create_animation(position, velocity, iteration_str, xylimits=np.array([2000, 2000]), view='both'):
     """
         view: 'top', 'side' or 'both'(default)
         xylimits: size of single plot. default 2000*2000*2000
@@ -46,6 +46,7 @@ def create_animation(position, velocity, angles, iteration_str, xylimits=np.arra
     path_side = 'fly_side.png'
     im_top = image.imread(path_top)
     im_side = image.imread(path_side)
+    im_side_mirror = im_side[:, ::-1, :]
 
     figsize = (9,4)
     if view == 'top':
@@ -98,22 +99,41 @@ def create_animation(position, velocity, angles, iteration_str, xylimits=np.arra
     ax_side.plot(hanging_x, hanging_z, 'k')
 
     """ flies """
-    def plot_images(plot_x, plot_y, angle, input_image, ax=None):
-        ax = ax or plt.gca()
-
-        for xi, yi, theta in zip(plot_x, plot_y, angle):
-            rotated = rotate_bound(input_image, theta)
-            im = OffsetImage(rotated, zoom=0.03)
-            im.image.axes = ax
-
-            ab = AnnotationBbox(im, (xi,yi), frameon=False, pad=0.0)
-
-            ax.add_artist(ab)
-
+    # create angle from velocity
+    # FIX xy_angles is going to take more thinking about
+    xy_angles = np.ndarray((position.shape[1],))
+    xz_angles = np.ndarray((position.shape[1],))
     
-    for fly_idx in range(position.shape[1]):
-        plot_images(position[0, :], position[1, :], angles[:], im_top, ax=ax_top)
-        plot_images(position[0, :], position[2, :], angles[:], im_side, ax=ax_side)
+    for fly_idx in range(velocity.shape[1]):
+        velo = velocity[:,fly_idx]
+        xy_angles[fly_idx] =  - (np.arctan2(velo[1],velo[0]) * 180) / np.pi
+        xz_angles[fly_idx] =  - (np.arctan(velo[2]/velo[0]) * 180) / np.pi
+        
+    # plot xy on ax_top
+    for xi, yi, theta in zip(position[0, :], position[1, :], xy_angles):
+        
+        rotated = rotate_bound(im_top, theta)
+        im = OffsetImage(rotated, zoom=0.03)
+        im.image.axes = ax_top
+        ab = AnnotationBbox(im, (xi,yi), frameon=False, pad=0.0)
+        ax_top.add_artist(ab)
+        
+    # plot xz on ax_side
+    for fly_idx in range(velocity.shape[1]):
+        xi  = position[0, fly_idx]
+        yi  = position[1, fly_idx]
+        theta = xz_angles[fly_idx]
+        
+        if velocity[0,fly_idx] >= 0:
+            input_image = im_side
+        else:
+            input_image = im_side_mirror
+        
+        rotated = rotate_bound(input_image, theta)
+        im = OffsetImage(rotated, zoom=0.03)
+        im.image.axes = ax_side
+        ab = AnnotationBbox(im, (xi,yi), frameon=False, pad=0.0)
+        ax_side.add_artist(ab)
 
 
     """ progress text """

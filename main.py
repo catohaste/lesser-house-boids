@@ -15,17 +15,11 @@ def new_flock(count, lower_limits, upper_limits):
     width = upper_limits - lower_limits
     return (lower_limits[:, np.newaxis] + np.random.rand(3, count) * width[:, np.newaxis])
     
+# position[xyz, fly_idx]
 position = new_flock(boid_count, np.array([centre[0]-300, centre[1]-300, centre[2]]), np.array([centre[0]+300, centre[1]+300, centre[2]]))
-velocity = new_flock(boid_count, np.array([-5, -5, 0]), np.array([5, 5, 0]))
-possible_angles = [0,90,180,270]
-angle = random.sample(possible_angles, boid_count)
+velocity = new_flock(boid_count, np.array([-5, -5, -2]), np.array([5, 5, 2]))
 
-im = plt.imread('fly_side.png')
-plt.imshow(im)
-
-plt.show()
-
-# create_animation(position, velocity, angle, current_iteration_str, xylimits=limits, view='both')
+create_animation(position, velocity, current_iteration_str, xylimits=limits, view='both')
 
 
 current_iteration = int(current_iteration_str)
