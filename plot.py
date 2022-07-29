@@ -31,7 +31,7 @@ def rotate_bound(image_h, angle):
     M[1, 2] += (nH / 2) - cY
 
     # perform the actual rotation and return the image
-    return cv2.warpAffine(image_h, M, (nW, nH), borderValue=(255,255,255))
+    return cv2.warpAffine(image_h, M, (nW, nH), borderValue=(1,1,1))
 
 
 def create_animation(position, velocity, iteration_str, xylimits=np.array([2000, 2000]), view='both'):
