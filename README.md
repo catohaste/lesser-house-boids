@@ -32,12 +32,14 @@ I think the ideal model would consist of multiple flies interacting in 3 dimensi
 
 Iteration 1: 1 fly resting in 2 dimensions.
 
-Plan for iteration 2: 1 fly moving in a stright line. This will involve a few steps:
-- Updating orientation (or rotation) of fly png based on `velocity`.
-- Using `velocity` to create movement. It currently isn't used at all.
-- Adding movement to the `animation` function. This function is currently empty.
+Iteration 2: 1 fly moving in a stright line. Also now in 3 spatial dimensions, with plots of xy and xz projections.
 
-As an additional goal, I'm going to program in a third spatial dimension now. This will make it much easier to adapt in future.
+The plan for iteration 3 is to have the fly turn a corner (always either left or right only), hopefully moving in a square-like trajectory.
+Key steps for this iteration will be:
+1. to implement a 'turn' clock sampled from a Poisson distribution counting down the time until the fly turns, and
+2. to have the turning angle sampled from a gaussian distribution approximating 90 degrees in the xy plane.
+
+Additional goals are to update the 'progress' animation to reduce the file size.
 
 Here is a little gif showing progress so far:
 ![Progress](progress.gif)
