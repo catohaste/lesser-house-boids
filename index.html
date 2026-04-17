@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Boids Toggle View</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+    }
+
+    canvas {
+      display: block;
+      border: 1px solid black;
+      margin: 10px auto;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>Boids Simulation</h2>
+
+  <div>
+    <button id="xyBtn" onclick="setView('xy')">XY View</button>
+    <button id="xzBtn" onclick="setView('xz')">XZ View</button>
+  </div>
+
+  <div>
+    <button onclick="addBoid()">➕ Add Boid</button>
+    <button onclick="removeBoid()">➖ Remove Boid</button>
+  </div>
+
+  <canvas id="xyCanvas" width="400" height="400"></canvas>
+  <canvas id="xzCanvas" width="400" height="400" style="display:none;"></canvas>
+
+  <script>
+    const BoidState = {
+        RESTING: "resting",
+        MOVE_TO_RESTING: "move_to_resting",
+        FLYING: "flying",
+        ZOOMING: "zooming"
+      };
+
+    class Boid {
+      constructor() {
+        this.x = Math.random() * 400;
+        this.y = Math.random() * 400;
+        this.z = Math.random() * 400;
+
+        this.vx = (Math.random() - 0.5) * 2;
+        this.vy = (Math.random() - 0.5) * 2;
+        this.vz = (Math.random() - 0.5) * 2;
+
+        this.state = BoidState.FLYING;
+      }
+
+      update() {
+        switch (this.state) {
+          case BoidState.RESTING:
+            this.updateResting();
+            break;
+
+          case BoidState.MOVE_TO_RESTING:
+            this.updateMoveToResting();
+            break;
+
+          case BoidState.FLYING:
+            this.updateFlying();
+            break;
+
+          case BoidState.ZOOMING:
+            this.updateZooming();
+            break;
+        }
+        this.move();
+      }
+
+      updateResting() {
+        // Minimal movement
+        this.vx *= 0.9;
+        this.vy *= 0.9;
+        this.vz *= 0.9;
+      }
+
+      updateMoveToResting() {
+        // Movement towards resting position
+        this.vx += (Math.random() - 0.5) * 0.1;
+        this.vy += (Math.random() - 0.5) * 0.1;
+        this.vz += (Math.random() - 0.5) * 0.1;
+      }
+
+      updateFlying() {
+        // Normal flocking
+        this.vx += (Math.random() - 0.5) * 0.2;
+        this.vy += (Math.random() - 0.5) * 0.2;
+        this.vz += (Math.random() - 0.5) * 0.2;
+      }
+
+      updateZooming() {
+        // Fast movement
+        this.vx += (Math.random() - 0.5) * 1.0;
+        this.vy += (Math.random() - 0.5) * 1.0;
+        this.vz += (Math.random() - 0.5) * 1.0;
+      }
+
+      move() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.z += this.vz;
+
+        // Wrap
+        this.x = (this.x + 400) % 400;
+        this.y = (this.y + 400) % 400;
+        this.z = (this.z + 400) % 400;
+      }
+      
+      setState(newState) {
+        this.state = newState;
+      }
+
+    }
+
+    const boids = [];
+    for (let i = 0; i < 10; i++) boids.push(new Boid());
+
+    function addBoid() { boids.push(new Boid()); }
+    function removeBoid() { boids.pop(); }
+
+    const xyCanvas = document.getElementById("xyCanvas");
+    const xzCanvas = document.getElementById("xzCanvas");
+
+    const xyCtx = xyCanvas.getContext("2d");
+    const xzCtx = xzCanvas.getContext("2d");
+
+    let currentView = "xy";
+    const xyBtn = document.getElementById("xyBtn");
+    const xzBtn = document.getElementById("xzBtn");
+
+    function setView(view) {
+      currentView = view;
+      const showXY = currentView === "xy";
+      xyCanvas.style.display = showXY ? "block" : "none";
+      xzCanvas.style.display = showXY ? "none" : "block";
+
+      xyBtn.disabled = showXY;
+      xzBtn.disabled = !showXY;
+    }
+
+    // Initialize button state
+    setView(currentView);
+
+    // Draw loop
+    function draw() {
+      let radius = 50; // radius of light
+      let height = 40; // height of light
+
+      xyCtx.clearRect(0, 0, 400, 400);
+      xzCtx.clearRect(0, 0, 400, 400);
+
+      // draw light on xy canvas
+      xyCtx.beginPath();
+      xyCtx.arc(200, 200, radius, 0, Math.PI * 2);
+      xyCtx.stroke();
+
+      // draw light body on xz canvas
+      xzCtx.beginPath();
+      xzCtx.strokeRect(200-radius, height, radius*2, 40);
+      xzCtx.stroke();
+
+      // draw light wire on xz canvas
+      xzCtx.beginPath();
+      xzCtx.moveTo(200,0);
+      xzCtx.lineTo(200, height);
+      xzCtx.stroke();
+
+      boids.forEach(boid => {
+        boid.update();
+
+        // XY
+        xyCtx.beginPath();
+        xyCtx.arc(boid.x, boid.y, 3, 0, Math.PI * 2);
+        xyCtx.fill();
+
+        // XZ
+        xzCtx.beginPath();
+        xzCtx.arc(boid.x, boid.z, 3, 0, Math.PI * 2);
+        xzCtx.fill();
+
+      });
+
+      requestAnimationFrame(draw);
+    }
+
+    draw();
+  </script>
+
+</body>
+
+</html>

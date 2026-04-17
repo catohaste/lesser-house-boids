@@ -28,22 +28,35 @@ Agent-based modelling is super cool. Watching animals flock and swoop and zoom i
 
 ## Building
 
-I think the ideal model would consist of multiple flies interacting in 3 dimensions, with all three behaviours. However, when building models I try to start simple and build up. So,
+### Frame
 
-Iteration 1: 1 fly resting in 2 dimensions.
+The set-up has a few components.
 
-Iteration 2: 1 fly moving in a stright line. Also now in 3 spatial dimensions, with plots of xy and xz projections.
+1. The agents are permitted to move anywhere in a 400 x 400 frame.
+2. We have set periodic boundary conditions (for the moment).
+3. 10 boids start at random positions with random velocities.
+4. A light is shown of set height and radius, and hanging a given dsistance from the celiing.
 
-The plan for iteration 3 is to have the fly turn a corner (always either left or right only), hopefully moving in a square-like trajectory.
-Key steps for this iteration will be:
-1. to implement a 'turn' clock sampled from a Poisson distribution counting down the time until the fly turns, and
-2. to have the turning angle sampled from a gaussian distribution approximating 90 degrees in the xy plane.
+### Agents
 
-Additional goals are to update the 'progress' animation to reduce the file size.
+The agents have 4 set states.
 
-Here is a little gif showing progress so far:
-![Progress](progress.gif)
+1. Resting
+2. Flying
+3. Moving to resting
+4. Zooming
 
+##### Resting
+
+* An agent should only be resting on the surface of the light.
+* Its velocity should be zero.
+
+##### Flying
+
+* The velocity in the z-direction should be less than that in the x and y directions.
+* The speed of the fly should be relatively constant.
+* The fly should move in an approximately square trajectory in the xy plane, around 50cm x 50cm.
+* The vertical extent of the trajectory should be around 25cm, around 60cm below the pendant light.
 
 ## References
 
