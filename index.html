@@ -28,7 +28,7 @@
     <button id="xzBtn" onclick="setView('xz')">XZ View</button>
   </div>
 
-  <div>
+  <div style="margin-top: 10px;">
     <button onclick="addBoid()">➕ Add Boid</button>
     <button onclick="removeBoid()">➖ Remove Boid</button>
   </div>
@@ -37,8 +37,32 @@
   <canvas id="xzCanvas" width="400" height="400" style="display:none;"></canvas>
 
   <script>
+    const PENDANT_RADIUS = 50;
+    const PENDANT_HEIGHT = 40;
+    const PENDANT_DROP = 60;
+    const PENDANT_SIDE_SA = 2 * Math.PI * PENDANT_RADIUS * PENDANT_HEIGHT;
+    const PENDANT_BOTTOM_SA = Math.PI * PENDANT_RADIUS * PENDANT_RADIUS;
+
+    function findRestingPos() {
+      const sideProportion = PENDANT_SIDE_SA / (PENDANT_SIDE_SA + PENDANT_BOTTOM_SA);
+      const isSide = Math.random() < sideProportion;
+      let pos = { x: 0, y: 0, z: 0 };
+      if (isSide) {
+        const theta = Math.random() * 2 * Math.PI;
+        pos.x = 200 + PENDANT_RADIUS * Math.cos(theta);
+        pos.y = 200 + PENDANT_RADIUS * Math.sin(theta);
+        pos.z = Math.random() * PENDANT_HEIGHT + PENDANT_DROP;
+      } else {
+        pos.x = Math.random() * PENDANT_RADIUS + 200;
+        pos.y = Math.random() * PENDANT_RADIUS + 200;
+        pos.z = PENDANT_DROP + PENDANT_HEIGHT;
+      }
+      return pos;
+    }
+
     const BoidState = {
         RESTING: "resting",
+        MOVE_TO_FLYING: "move_to_flying",
         MOVE_TO_RESTING: "move_to_resting",
         FLYING: "flying",
         ZOOMING: "zooming"
@@ -46,21 +70,28 @@
 
     class Boid {
       constructor() {
-        this.x = Math.random() * 400;
-        this.y = Math.random() * 400;
-        this.z = Math.random() * 400;
+        const pos = findRestingPos();
+        this.x = pos.x;
+        this.y = pos.y;
+        this.z = pos.z;
 
-        this.vx = (Math.random() - 0.5) * 2;
-        this.vy = (Math.random() - 0.5) * 2;
-        this.vz = (Math.random() - 0.5) * 2;
+        this.vx = 0;
+        this.vy = 0;
+        this.vz = 0;
 
-        this.state = BoidState.FLYING;
+        this.counter = Math.random() * 10 + 5;
+
+        this.state = BoidState.RESTING;
       }
 
       update() {
         switch (this.state) {
           case BoidState.RESTING:
             this.updateResting();
+            break;
+
+          case BoidState.MOVE_TO_FLYING:
+            this.updateMoveToFlying();
             break;
 
           case BoidState.MOVE_TO_RESTING:
@@ -75,14 +106,25 @@
             this.updateZooming();
             break;
         }
-        this.move();
+
+        if (this.state !== BoidState.RESTING) {
+          this.move();
+        }
       }
 
       updateResting() {
-        // Minimal movement
-        this.vx *= 0.9;
-        this.vy *= 0.9;
-        this.vz *= 0.9;
+        this.counter -= 0.02;
+        if (this.counter <= 0) {
+          this.counter = Math.random() * 10 + 5;
+          this.state = BoidState.MOVE_TO_FLYING;
+        }
+      }
+
+      updateMoveToFlying() {
+        // Movement towards flying position
+        this.vx += (Math.random() - 0.5) * 0.1;
+        this.vy += (Math.random() - 0.5) * 0.1;
+        this.vz += (Math.random() - 0.5) * 0.1;
       }
 
       updateMoveToResting() {
@@ -111,20 +153,15 @@
         this.y += this.vy;
         this.z += this.vz;
 
-        // Wrap
+        // Wrap around bounds
         this.x = (this.x + 400) % 400;
         this.y = (this.y + 400) % 400;
         this.z = (this.z + 400) % 400;
       }
-      
-      setState(newState) {
-        this.state = newState;
-      }
-
     }
 
     const boids = [];
-    for (let i = 0; i < 10; i++) boids.push(new Boid());
+    for (let i = 0; i < 3; i++) boids.push(new Boid());
 
     function addBoid() { boids.push(new Boid()); }
     function removeBoid() { boids.pop(); }
@@ -154,8 +191,9 @@
 
     // Draw loop
     function draw() {
-      let radius = 50; // radius of light
-      let height = 40; // height of light
+      let radius = PENDANT_RADIUS; // radius of light
+      let height = PENDANT_HEIGHT; // height of light
+      let drop = PENDANT_DROP; // drop of light from ceiling
 
       xyCtx.clearRect(0, 0, 400, 400);
       xzCtx.clearRect(0, 0, 400, 400);
@@ -167,13 +205,13 @@
 
       // draw light body on xz canvas
       xzCtx.beginPath();
-      xzCtx.strokeRect(200-radius, height, radius*2, 40);
+      xzCtx.strokeRect(200-radius, drop, radius*2, height);
       xzCtx.stroke();
 
       // draw light wire on xz canvas
       xzCtx.beginPath();
       xzCtx.moveTo(200,0);
-      xzCtx.lineTo(200, height);
+      xzCtx.lineTo(200, drop);
       xzCtx.stroke();
 
       boids.forEach(boid => {
