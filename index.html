@@ -79,6 +79,8 @@
         this.vy = 0;
         this.vz = 0;
 
+        this.targetZ =  (PENDANT_DROP + PENDANT_HEIGHT + 60 + Math.random() * 20); // target flying height
+
         this.counter = Math.random() * 10 + 5;
 
         this.state = BoidState.RESTING;
@@ -115,16 +117,21 @@
       updateResting() {
         this.counter -= 0.02;
         if (this.counter <= 0) {
-          this.counter = Math.random() * 10 + 5;
+          
           this.state = BoidState.MOVE_TO_FLYING;
+          this.vx = (Math.random() - 0.5)*5;
+          this.vy = (Math.random() - 0.5)*5;
+          this.vz = (this.targetZ - this.z) * 0.01;
         }
       }
 
       updateMoveToFlying() {
-        // Movement towards flying position
-        this.vx += (Math.random() - 0.5) * 0.1;
-        this.vy += (Math.random() - 0.5) * 0.1;
-        this.vz += (Math.random() - 0.5) * 0.1;
+        console.log(this.z, this.targetZ);
+        if(this.z >= this.targetZ) {
+          this.counter = Math.random() * 10 + 5;
+          this.vz = Math.random() * 0.001;
+          this.state = BoidState.FLYING;
+        }
       }
 
       updateMoveToResting() {
