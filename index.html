@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+
 <head>
   <meta charset="UTF-8">
   <title>Boids Toggle View</title>
@@ -17,6 +19,7 @@
       margin: 10px auto;
     }
   </style>
+
 </head>
 
 <body>
@@ -37,6 +40,7 @@
   <canvas id="xzCanvas" width="400" height="400" style="display:none;"></canvas>
 
   <script>
+
     const PENDANT_RADIUS = 50;
     const PENDANT_HEIGHT = 40;
     const PENDANT_DROP = 60;
@@ -80,6 +84,7 @@
         this.vz = 0;
 
         this.targetZ =  (PENDANT_DROP + PENDANT_HEIGHT + 60 + Math.random() * 20); // target flying height
+        this.turnPreference = Math.random() < 0.5 ? 'left' : 'right'; //
 
         this.counter = Math.random() * 10 + 5;
 
@@ -126,7 +131,6 @@
       }
 
       updateMoveToFlying() {
-        console.log(this.z, this.targetZ);
         if(this.z >= this.targetZ) {
           this.counter = Math.random() * 10 + 5;
           this.vz = Math.random() * 0.001;
@@ -142,6 +146,15 @@
       }
 
       updateFlying() {
+
+        // move forwards in a random direction
+        // when turn counter ticks to zero, turn left or right according to turn preference
+        // turn should be an angle between 85 and 95 degrees
+        // reset turn counter
+        //turn counter separate from resting counter
+        // there should be some noise in forward motion, but very little
+        
+        //console.log(d3.randomNormal(0, 1)());
         // Normal flocking
         this.vx += (Math.random() - 0.5) * 0.2;
         this.vy += (Math.random() - 0.5) * 0.2;
