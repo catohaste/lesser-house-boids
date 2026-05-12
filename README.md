@@ -22,7 +22,7 @@ I'm trying to build a simple model of the flight of the lesser house fly (_Fanni
 
 #### How?
 
-Creating a simulation of lesser house flies lends its perfectly to agent-based modelling: where you give each fly (or agent) a prescribed list of behaviours, and see how they interact to create large-scale, emergent behaviours. Specifically, it might be interesting to see how the prescribed behaviours need to be defined in order to observe "zooming" at a similar frequency to real life.
+Creating a simulation of lesser house flies lends its perfectly to agent-based modelling: where you give each fly (or boid) a prescribed list of behaviours, and see how they interact to create large-scale, emergent behaviours. Specifically, it might be interesting to see how the prescribed behaviours need to be defined in order to observe "zooming" at a similar frequency to real life.
 
 Agent-based modelling is super cool. Watching animals flock and swoop and zoom is incredible and simple agent-based models have given insight into how emergent behaviours of large groups come about. Agent-based modelling has also been applied in cell biology to study morphogenesis, tumour growth and metastasis and formation of bacterial biofilms. These types of models (particularly as applied to morphogensis) are relevant to the work done in my PhD.
 
@@ -31,32 +31,52 @@ Agent-based modelling is super cool. Watching animals flock and swoop and zoom i
 ### Frame
 
 The set-up has a few components.
+1. A pendant light is shown of set height and radius, and hanging a given distance from the celiing.
+2. The boids are permitted to move anywhere in a 400 x 400 frame.
+3. We have set periodic boundary conditions (for the moment).
+4. 3 boids start in resting positions on the pendant, after which they proceed to flying height below the pendant.
 
-1. The agents are permitted to move anywhere in a 400 x 400 frame.
-2. We have set periodic boundary conditions (for the moment).
-3. 10 boids start at random positions with random velocities.
-4. A light is shown of set height and radius, and hanging a given dsistance from the celiing.
 
-### Agents
+### Boids
 
-The agents have 4 set states.
-
+The boids have 5 set states.
 1. Resting
-2. Flying
-3. Moving to resting
-4. Zooming
+2. Moving to flying
+3. Flying
+4. Moving to resting
+5. Zooming
+
+It is perhaps not necessary to have the transitional states, but it does make the programming easier.
 
 ##### Resting
 
 * An agent should only be resting on the surface of the light.
 * Its velocity should be zero.
 
+##### Moving to flying
+
+* This behaviour should be reasonably similar to flying.
+* The fly should move downwards, away from the pendant, at the standard flying speed.
+* The behaviour should switch to flying when the boid is approximately 60cm below the pendant light.
+
 ##### Flying
 
 * The velocity in the z-direction should be less than that in the x and y directions.
-* The speed of the fly should be relatively constant.
-* The fly should move in an approximately square trajectory in the xy plane, around 50cm x 50cm.
+* The speed of the boid should be relatively constant.
+* The boid should move in an approximately square trajectory in the xy plane, around 50cm x 50cm.
 * The vertical extent of the trajectory should be around 25cm, around 60cm below the pendant light.
+
+##### Moving to resting
+
+* The boid should move at normal flying speed to an appropriate position on the pendant.
+
+##### Zooming
+
+* When near another boid, both boids should increase speed.
+* Both boids should abandon their square trajectory for a more circular trajectory.
+* It isn't clear what ends the zooming behaviour.
+	* The boids could become tired. Some counter has ticked down to zero.
+	* Random fluctuations could result in the boids being too far away from each other for the behaviour to apply.
 
 ## References
 
